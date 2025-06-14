@@ -49,7 +49,7 @@ public class RaftNode extends Node{
     }
 
     private void generateRandomThresholdForTermTimeout() {
-        var randomValue = ThreadLocalRandom.current().nextLong(10, 300);
+        var randomValue = ThreadLocalRandom.current().nextLong(HEARTBEAT_THRESHOLD * 5, (HEARTBEAT_THRESHOLD * 5) * 2);
         this.currentTermTimeoutThreshold.set(randomValue);
     }
 
@@ -93,11 +93,16 @@ public class RaftNode extends Node{
         }
         else if (!this.alreadyLost.get() && this.majorityHasVoted()){
             this.alreadyLost.set(true);
+            this.decrementTerm();
             this.becomeFollower();
             this.startTimeoutCount();
         }
         if (this.alreadyLost.get())
             this.cleanupTransientElectionData();
+    }
+
+    private void decrementTerm() {
+        this.currentTerm.decrementAndGet();
     }
 
     private void becomeFollower() {

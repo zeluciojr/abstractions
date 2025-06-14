@@ -11,24 +11,38 @@ public class ControllerNodesFactory {
 
     public static List<Node> create(Integer desiredAmount){
         desiredAmount = ControllerNodesFactory.makeDesiredAmountUneven(desiredAmount);
+        var controllers = createTheControllers(desiredAmount);
+        ControllerNodesFactory.connectAllControllersToEachOther(controllers);
+        ControllerNodesFactory.initializeControllers(controllers);
+        return controllers;
+    }
+
+    private static List<Node> createTheControllers(Integer desiredAmount) {
         var counter = 0;
-        var allControllersBeingCreated = new ArrayList<Node>();
+        var controllers = new ArrayList<Node>();
         while (counter < desiredAmount){
             var newNode = ControllerNode.ofNew();
-            allControllersBeingCreated.add(newNode);
+            controllers.add(newNode);
             counter++;
         }
+        return controllers;
+    }
+
+    private static void connectAllControllersToEachOther(List<Node> allControllersBeingCreated) {
         allControllersBeingCreated.stream()
             .map(node -> (ControllerNode) node)
             .forEach(controller -> {
                 var allOfItsPartners = allControllersBeingCreated.stream()
-                        .filter(node -> node.getId() != controller.getId())
-                        .toList();
+                    .filter(node -> node.getId() != controller.getId())
+                    .toList();
                 controller.setPartners(allOfItsPartners);
-        });
-        var aa = allControllersBeingCreated.stream().map(a -> (ControllerNode) a).toList();
-        aa.forEach(ControllerNode::initializeRaft);
-        return allControllersBeingCreated;
+            });
+    }
+
+    private static void initializeControllers(List<Node> controllers) {
+        controllers.stream()
+                .map(a -> (ControllerNode) a)
+                .forEach(ControllerNode::initializeRaft);
     }
 
     private static Integer makeDesiredAmountUneven(Integer desiredAmount) {
