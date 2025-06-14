@@ -185,13 +185,15 @@ public class ControllerNode extends Node{
 
     protected void receiveCandidateRequest(ControllerNode candidate){
         if (this.lastTermVoted < candidate.getCurrentTerm()){
-            candidate.receiveVote(this.getCurrentTerm() <= candidate.getCurrentTerm());
+            var vote = this.getCurrentTerm() <= candidate.getCurrentTerm();
+            LoggerAdapter.SINGLETON.logInfo(this + " is voting " + vote + " for " + candidate);
+            candidate.receiveVote(vote);
             this.lastTermVoted = candidate.getCurrentTerm();
         }
     }
 
     @Override
     public String toString() {
-        return "Controller " + this.getId().toString() + " (" + this.raftState + ") ";
+        return "Controller " + this.getId().toString() + " (" + this.raftState + " for term " + this.currentTerm + ")";
     }
 }
