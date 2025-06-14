@@ -26,4 +26,7 @@ public class Cluster implements Entity {
     private List<Node> controllerNodes;
     private List<Node> allNodes;
 
+    public void initialize() {
+        this.controllerNodes.stream().map(node -> (ControllerNode) node).forEach(ControllerNode::initializeRaft);
+    }
 }

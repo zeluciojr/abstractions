@@ -8,6 +8,7 @@ public class App {
 
     public static void main(String[] args) {
         var cluster = Cluster.of(ControllerNodesFactory.create(100), BrokerNodesFactory.create(8));
+        cluster.initialize();
     }
 
 }

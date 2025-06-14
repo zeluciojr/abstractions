@@ -13,7 +13,6 @@ public class ControllerNodesFactory {
         desiredAmount = ControllerNodesFactory.makeDesiredAmountUneven(desiredAmount);
         var controllers = createTheControllers(desiredAmount);
         ControllerNodesFactory.connectAllControllersToEachOther(controllers);
-        ControllerNodesFactory.initializeControllers(controllers);
         return controllers;
     }
 
@@ -37,12 +36,6 @@ public class ControllerNodesFactory {
                     .toList();
                 controller.setPartners(allOfItsPartners);
             });
-    }
-
-    private static void initializeControllers(List<Node> controllers) {
-        controllers.stream()
-                .map(a -> (ControllerNode) a)
-                .forEach(ControllerNode::initializeRaft);
     }
 
     private static Integer makeDesiredAmountUneven(Integer desiredAmount) {
