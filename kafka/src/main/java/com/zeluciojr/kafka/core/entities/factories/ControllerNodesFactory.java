@@ -24,8 +24,10 @@ public class ControllerNodesFactory {
                 var allOfItsPartners = allControllersBeingCreated.stream()
                         .filter(node -> node.getId() != controller.getId())
                         .toList();
-                controller.initializeRaft(allOfItsPartners);
+                controller.setPartners(allOfItsPartners);
         });
+        var aa = allControllersBeingCreated.stream().map(a -> (ControllerNode) a).toList();
+        aa.forEach(ControllerNode::initializeRaft);
         return allControllersBeingCreated;
     }
 

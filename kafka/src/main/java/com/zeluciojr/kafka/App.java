@@ -7,7 +7,7 @@ import com.zeluciojr.kafka.core.entities.factories.ControllerNodesFactory;
 public class App {
 
     public static void main(String[] args) {
-        var cluster = Cluster.of(ControllerNodesFactory.create(4), BrokerNodesFactory.create(8));
+        var cluster = Cluster.of(ControllerNodesFactory.create(100), BrokerNodesFactory.create(8));
     }
 
 }

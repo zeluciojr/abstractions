@@ -34,9 +34,8 @@ public class RaftNode extends Node{
     private final ExecutorService heartbeatExecutor = ControllerNodeHeartbeatExecutorFactory.createOrGetExecutor();
     private Future<?> heartbeatTask;
 
-    public void initializeRaft(List<Node> partners){
+    public void initializeRaft(){
         LoggerAdapter.SINGLETON.logInfo("Initialized: " + this);
-        this.setPartners(partners);
         this.startTimeoutCount();
     }
 
@@ -50,7 +49,7 @@ public class RaftNode extends Node{
     }
 
     private void generateRandomThresholdForTermTimeout() {
-        var randomValue = ThreadLocalRandom.current().nextLong(HEARTBEAT_THRESHOLD + 50, 1000);
+        var randomValue = ThreadLocalRandom.current().nextLong(10, 300);
         this.currentTermTimeoutThreshold.set(randomValue);
     }
 
@@ -87,6 +86,7 @@ public class RaftNode extends Node{
     }
 
     private void checkResults(){
+        LoggerAdapter.SINGLETON.logInfo("Checking results: " + this + " lost -> " + this.alreadyLost);
         if (this.hasWonElectionForCurrentTerm()){
             this.becomeLeader();
             this.cleanupTransientElectionData();
@@ -151,7 +151,6 @@ public class RaftNode extends Node{
     }
 
     protected void receiveLeaderHeartbeat(Long allegedlyLeadersCurrentTerm){
-        LoggerAdapter.SINGLETON.logInfo("Heartbeat received at " + this);
         if (this.getCurrentTerm().get() < allegedlyLeadersCurrentTerm)
             this.currentTerm.set(allegedlyLeadersCurrentTerm);
         if (this.getCurrentTerm().get() == (allegedlyLeadersCurrentTerm)){
@@ -160,11 +159,21 @@ public class RaftNode extends Node{
                 this.startTimeoutCount();
             this.cancelPossibleHeartbeats();
             this.enforceCorrectFollowerState();
+            LoggerAdapter.SINGLETON.logInfo("Heartbeat accepted at " + this);
+        }
+        else{
+            LoggerAdapter.SINGLETON.logInfo("Heartbeat rejected at " + this);
         }
     }
 
     private void enforceCorrectFollowerState() {
-        if (this.isLeader()) this.becomeFollower();
+        if (!this.isFollower()) this.becomeFollower();
+    }
+
+    private boolean isFollower() {
+        return Optional.ofNullable(this.raftState)
+                .orElseThrow()
+                .isFollower();
     }
 
     private void cancelPossibleHeartbeats() {

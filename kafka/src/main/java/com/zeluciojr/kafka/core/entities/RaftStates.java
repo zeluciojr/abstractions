@@ -10,4 +10,7 @@ public enum RaftStates {
         return this.equals(LEADER);
     }
 
+    public boolean isFollower() {
+        return this.equals(FOLLOWER);
+    }
 }
